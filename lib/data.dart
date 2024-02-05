@@ -7,8 +7,9 @@ import 'package:expense_tracker/model.dart';
 final formatter = DateFormat.yMd();
 
 class Data extends StatefulWidget {
-  const Data({super.key});
+  const Data({super.key, required this.onAddExp});
 
+  final void Function(Expense expense) onAddExp;
   @override
   State<Data> createState() => _DataState();
 }
@@ -41,6 +42,37 @@ class _DataState extends State<Data> {
     });
   }
 
+  void submit() {
+    final amt = double.tryParse(_amtController.text);
+    final amtinvalid = amt == null || amt <= 0;
+    if (_titleController.text.trim().isEmpty ||
+        amtinvalid ||
+        _selectDate == null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Invalid"),
+          content: Text("Enter crt Details"),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Close"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    widget.onAddExp(
+      Expense(
+          title: _titleController.text,
+          amount: amt,
+          date: _selectDate!,
+          category: _cat),
+    );
+    Navigator.pop(context);
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -51,7 +83,7 @@ class _DataState extends State<Data> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
       child: Column(
         children: [
           TextField(
@@ -126,10 +158,7 @@ class _DataState extends State<Data> {
                 child: Text("Cancel"),
               ),
               ElevatedButton(
-                onPressed: () {
-                  print(_titleController.text);
-                  print(_amtController.text);
-                },
+                onPressed: submit,
                 child: Text("Save"),
               ),
             ],

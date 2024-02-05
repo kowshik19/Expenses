@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, camel_case_types
 
+import 'package:expense_tracker/chart.dart';
 import 'package:expense_tracker/data.dart';
 import 'package:expense_tracker/list.dart';
 import 'package:expense_tracker/model.dart';
@@ -15,31 +16,65 @@ class Expenses extends StatefulWidget {
 class _ExpensesState extends State<Expenses> {
   final List<Expense> _registeredExpenses = [
     Expense(
-      title: "Flutter",
-      amount: 12,
-      date: DateTime.now(),
-      category: Category.travel,
-    ),
-    Expense(
-      title: "Bus",
-      amount: 12,
+      title: "Food",
+      amount: 10,
       date: DateTime.now(),
       category: Category.food,
     ),
   ];
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
+      shape: BeveledRectangleBorder(),
+      isScrollControlled: true,
       context: context,
-      builder: (ctx) => Data(),
+      builder: (ctx) => Data(
+        onAddExp: _addExp,
+      ),
+    );
+  }
+
+  void _addExp(Expense expense) {
+    setState(() {
+      _registeredExpenses.add(expense);
+    });
+  }
+
+  void _removeExp(Expense expense) {
+    final index = _registeredExpenses.indexOf(expense);
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: Duration(
+          seconds: 3,
+        ),
+        content: Text("Expense Deleted"),
+        action: SnackBarAction(
+            label: "Undo",
+            onPressed: () {
+              setState(() {
+                _registeredExpenses.insert(index, expense);
+              });
+            }),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget main = Center(
+      child: Text("Add some Expenses"),
+    );
+    if (_registeredExpenses.isNotEmpty) {
+      main = ExpenseList(
+        removeExp: _removeExp,
+        expenses: _registeredExpenses,
+      );
+    }
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 190, 243, 250),
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 190, 243, 250),
         title: Text("Expense_Tracker"),
         actions: [
           IconButton(
@@ -52,11 +87,8 @@ class _ExpensesState extends State<Expenses> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: ExpenseList(
-              expenses: _registeredExpenses,
-            ),
-          )
+          Chart(expenses: _registeredExpenses),
+          Expanded(child: main),
         ],
       ),
     );
