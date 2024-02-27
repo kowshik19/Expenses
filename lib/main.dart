@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors
-import 'package:expense_tracker/expense.dart';
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+
+import 'package:expense_tracker/login.dart';
 import 'package:flutter/material.dart';
 
 void main(List<String> args) {
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Expenses(),
+      home: Signin(),
       darkTheme: ThemeData.dark().copyWith(
         colorScheme: kDarkColorScheme,
         cardTheme: const CardTheme().copyWith(
